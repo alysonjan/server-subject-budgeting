@@ -71,9 +71,8 @@ async(req,res) =>{
                             }
                             const token = jwt.sign(payload, process.env.jwtSecret, {expiresIn: 360000} )
                             const encryptedToken = CryptoJS.AES.encrypt(token, process.env.hashKey).toString();
-                            //res.json({encryptedToken})
-                            //res.json({result,encryptedToken});
-                            res.json({result,encryptedToken});
+                            
+                            res.json({encryptedToken});
 
                         }else if (response === false){
                             res.status(400).json({ errors: [{ msg: 'Password does not match'}] });
