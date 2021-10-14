@@ -3,6 +3,7 @@ const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const db = require('../../../config/database');
 const auth = require('../../../middleware/auth');
+const { RegularSize, AllowanceSize } = require('../../../constants/SubjectBudgeting');
 
 // @route POST api/add/generate-subject
 // @description Generate Subject
@@ -11,8 +12,8 @@ const auth = require('../../../middleware/auth');
 router.post('/add', [auth,
     [
         check('curriculum_code', "Curriculum code is required").not().isEmpty(),
-        ///check('year_level', "Year Level is required").not().isEmpty(),
-        // check('students', "Students are required").not().isEmpty(),
+        check('year_level', "Year Level is required").not().isEmpty(),
+        check('students', "Students is required").not().isEmpty(),
     ]
 ], async (req, res) => {
     const errors = validationResult(req);
@@ -20,7 +21,19 @@ router.post('/add', [auth,
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { curriculum_code, year_level, students, no_of_sections, total_teaching_hours, no_of_faculty } = req.body;
+    const { curriculum_code, year_level, students,no_of_faculty } = req.body;
+
+    let no_of_sections;
+
+    if (students >= RegularSize) {
+        let sectionCapacity = Math.floor(students/RegularSize);
+        if (students % RegularSize > AllowanceSize) {
+            sectionCapacity += 1;
+        }
+        no_of_sections = sectionCapacity;
+    } else {
+        no_of_sections = 1;
+    };
 
     const sqlCheckIfExist = "SELECT * FROM generate_subject WHERE year_level = ?";
     db.query(sqlCheckIfExist, [year_level], (err, checkIfExist) => {
@@ -37,8 +50,12 @@ router.post('/add', [auth,
                         res.status(400).json({ errors: [{ msg: 'Oops, Something went wrong' }] });
                     } else {
                         result.forEach(subjectBudget => {
-                            const sqlInsertGenerateSubject = "INSERT INTO generate_subject (college_name,curriculum_code,subject_code,semester,year_level,subject_name,lec_units,lab_units,total_units,lec_teaching_hours,lab_teaching_hours,total_teaching_hours,students,no_of_sections,no_of_faculty,rad_hours) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-                            db.query(sqlInsertGenerateSubject, [subjectBudget.collegeName, subjectBudget.programName, subjectBudget.courseCode, subjectBudget.sem, subjectBudget.yearLevel, subjectBudget.subjectName, subjectBudget.lecUnits, subjectBudget.labUnits, subjectBudget.totalUnits, subjectBudget.lecTeachingHours, subjectBudget.labTeachingHours, subjectBudget.totalTeachingHours, students, no_of_sections, total_teaching_hours, no_of_faculty], (err, result1) => {                      })
+                            let overall_teaching_hours = no_of_sections*subjectBudget.totalTeachingHours;
+                            let no_of_faculty = overall_teaching_hours/24;
+                            let rad = 70;
+
+                            const sqlInsertGenerateSubject = "INSERT INTO generate_subject (college_name,curriculum_code,subject_code,semester,year_level,subject_name,lec_units,lab_units,total_units,lec_teaching_hours,lab_teaching_hours,total_teaching_hours,students,no_of_sections,overall_teaching_hours,no_of_faculty,rad_hours) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                            db.query(sqlInsertGenerateSubject, [subjectBudget.collegeName, subjectBudget.programName, subjectBudget.courseCode, subjectBudget.sem, subjectBudget.yearLevel, subjectBudget.subjectName, subjectBudget.lecUnits, subjectBudget.labUnits, subjectBudget.totalUnits, subjectBudget.lecTeachingHours, subjectBudget.labTeachingHours, subjectBudget.totalTeachingHours, students, no_of_sections, overall_teaching_hours, no_of_faculty,rad], (err, result1) => {                      })
                         });
                         return res.json('success');
                     }
@@ -50,13 +67,6 @@ router.post('/add', [auth,
         };
 
     });
-
 });
-
-
-
-
-
-
 
 module.exports = router;
