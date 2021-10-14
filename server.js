@@ -28,6 +28,7 @@ app.use('/api/curriculum', require('./routes/api/registrar/Curriculum'));
 app.use('/api/faculty-management', require('./routes/api/registrar/FacultyManagement'));
 
 app.use('/api/generate-subject', require('./routes/api/dean/GenerateSubject'));
+app.use('/api/get/', require('./routes/api/queries/Query'));
 
 
 
