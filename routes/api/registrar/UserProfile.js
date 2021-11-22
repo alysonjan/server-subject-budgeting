@@ -37,7 +37,7 @@ router.post('/add',[auth,
         check('gender', "Gender is required").not().isEmpty(),
         check('address', "Address is required").not().isEmpty(),
         check('contact_number', "Contact is required").not().isEmpty(),
-        check('email_address', "Please include a valid email").isEmail(),
+        check('email', "Please include a valid email").isEmail(),
         check('password', 'Please enter a password with 8 or more characters').isLength({ min: 8}),
         check('role', "Role is required").not().isEmpty(),
     ]
@@ -47,12 +47,12 @@ async(req, res) => {
     if (!errors.isEmpty()) {
         return res.status(400).json({errors: errors.array() });
     }
-    const {  lastname, firstname, middlename, birthdate, gender, address, contact_number, email_address, password, role } = req.body;
+    const { lastname, firstname, middlename, birthdate, gender, address, contact_number, email, password, role } = req.body;
     const hashedPassword = await bcrpyt.hash(password, saltRounds);
 
     try {
-        sqlRegister = "INSERT INTO user_profile (lastname,firstname,middlename,birthdate,gender,address,contact_number,email_address,password,role) VALUES (?,?,?,?,?,?,?,?,?,?)";
-        db.query(sqlRegister, [lastname, firstname, middlename, birthdate, gender, address, contact_number, email_address, hashedPassword, role], (err, result) => {
+        sqlRegister = "INSERT INTO user_profile (lastname,firstname,middlename,birthdate,gender,address,contact_number,email,password,role) VALUES (?,?,?,?,?,?,?,?,?,?)";
+        db.query(sqlRegister, [lastname, firstname, middlename, birthdate, gender, address, contact_number, email, hashedPassword, role], (err, result) => {
             if (err){
                 res.status(400).json({ errors: [{ msg: 'Please check your Credentials'}] });
             }else{

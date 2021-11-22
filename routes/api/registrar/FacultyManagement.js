@@ -30,14 +30,13 @@ router.post('/add',[auth,
     [
         check('lastname', "Last name is required").not().isEmpty(),
         check('firstname', "First name is required").not().isEmpty(),
-        check('middlename', "Middle name is required").not().isEmpty(),
         check('birthdate', "Birthdate is required").not().isEmpty(),
         check('gender', "Gender is required").not().isEmpty(),
         check('address', "Address is required").not().isEmpty(),
         check('educational_attainment', "Educational Attainment is required").not().isEmpty(),
         check('position', "Position is required").not().isEmpty(),
-        check('contact_no', "Contact number is required").not().isEmpty(),
-        check('email_address', "Email address is required").not().isEmpty(),
+        check('contact_number', "Contact number is required").not().isEmpty(),
+        check('email', "Email address is required").not().isEmpty(),
         check('status', "Status is required").not().isEmpty(),
     ]
 ], async(req, res)=>{
@@ -45,10 +44,10 @@ router.post('/add',[auth,
     if (!errors.isEmpty()) {
         return res.status(400).json({errors: errors.array()});
     }
-    const { lastname, firstname, middlename, birthdate, gender, address, educational_attainment, position, contact_no, email_address, status } = req.body;
+    const { lastname, firstname, middlename, birthdate, gender, address, educational_attainment, position, contact_number, email, status } = req.body;
     try {
-        sqlInsertEmployee = "INSERT INTO employees (lastname, firstname, middlename, birthdate, gender, address, educational_attainment, position, contact_no, email_address, status) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
-        db.query(sqlInsertEmployee, [lastname, firstname, middlename, birthdate, gender, address, educational_attainment, position, contact_no, email_address, status], (err, result) => {
+        sqlInsertEmployee = "INSERT INTO employees (lastname, firstname, middlename, birthdate, gender, address, educational_attainment, position, contact_number, email, status) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        db.query(sqlInsertEmployee, [lastname, firstname, middlename, birthdate, gender, address, educational_attainment, position, contact_number, email, status], (err, result) => {
             if (err){
                 res.status(400).json({ errors: [{ msg: 'Oops, Something went wrong'}] });
             }else{

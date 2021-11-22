@@ -51,16 +51,16 @@ async(req,res) =>{
     const { email, password, college } = req.body;
 
     try {
-        const sqlLogin = "SELECT * FROM user_profile WHERE email_address = ?";
+        const sqlLogin = "SELECT * FROM user_profile WHERE email = ?";
         db.query(sqlLogin, [email,college], (err,result) => {
 
-            if (err) res.status(400).json({ errors: [{ msg: 'Oops, Something went wrong'}] });
+            if (err) res.status(400).json({ errors: [{ msg: 'Invalid Credentials'}] });
 
             if (result.length > 0) {
                 bcrpyt.compare(password, result[0].password, (error, response) =>{
 
                     if (error){
-                        return res.status(400).json({ errors: [{ msg: 'Oops, Something went wrong'}] });
+                        return res.status(400).json({ errors: [{ msg: 'Invalid Credentials'}] });
                     }else{
                         if (response === true){
                             const payload = {
@@ -69,22 +69,21 @@ async(req,res) =>{
                                     userID: result[0].userid
                                 }
                             }
-                            const token = jwt.sign(payload, process.env.jwtSecret, {expiresIn: 360000} )
+                            const token = jwt.sign(payload, process.env.jwtSecret, {expiresIn: process.env.JWT_EXPIRES_IN} )
                             const encryptedToken = CryptoJS.AES.encrypt(token, process.env.hashKey).toString();
-                            //res.json({encryptedToken})
-                            //res.json({result,encryptedToken});
-                            res.json({result,encryptedToken});
+                            let role = result[0].role
+                            res.json({role,encryptedToken}); 
 
                         }else if (response === false){
                             res.status(400).json({ errors: [{ msg: 'Password does not match'}] });
                         }
                         else{
-                            res.status(400).json({ errors: [{ msg: 'Oops, Something went wrong'}] });
+                            res.status(400).json({ errors: [{ msg: 'Invalid Credentials'}] });
                         }
                     }
                 });
             }else{
-                res.status(400).json({ errors: [{ msg: 'Oops, Something went wrong'}] });
+                res.status(400).json({ errors: [{ msg: 'Invalid Credentials'}] });
             }
         });
     } catch (err) {
