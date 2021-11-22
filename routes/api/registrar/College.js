@@ -33,7 +33,7 @@ router.post('/add',[auth,
         check('college_code', "College code is required").not().isEmpty(),
         check('college_name', "College name is required").not().isEmpty(),
         check('college_type', "College type is required").not().isEmpty(),
-        check('status', "Status is required").not().isEmpty(),
+        check('college_status', "Status is required").not().isEmpty(),
     ]
 ], async (req, res) => {
     const errors = validationResult(req);
@@ -41,11 +41,11 @@ router.post('/add',[auth,
         return res.status(400).json({errors: errors.array() });
     }
 
-    const { college_code, college_name, college_type, status } = req.body;
+    const { college_code, college_name, college_type, college_status } = req.body;
 
     try {
-        const sqlInsertCollege = "INSERT INTO colleges (college_code, college_name, college_type, status ) VALUES ( ?, ?, ?, ?)";
-        db.query(sqlInsertCollege, [college_code, college_name, college_type, status], (err,result) =>{
+        const sqlInsertCollege = "INSERT INTO colleges (college_code, college_name, college_type, college_status ) VALUES ( ?, ?, ?, ?)";
+        db.query(sqlInsertCollege, [college_code, college_name, college_type, college_status], (err,result) =>{
             if (err){
                 res.status(400).json({ errors: [{ msg: 'Oops, Something went wrong'}] });  
             }else{

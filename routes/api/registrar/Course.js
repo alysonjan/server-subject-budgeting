@@ -29,10 +29,10 @@ router.get('/', async(req,res) => {
 router.post('/add', [auth,
     [
         check('college_code', "College Code is required").not().isEmpty(),
-        check('department_code', "Course Code is required").not().isEmpty(),
+        check('department_name', "Course Code is required").not().isEmpty(),
         check('course_name', "Course Name is required").not().isEmpty(),
         check('course_description', "Course description is required").not().isEmpty(),
-        check('status', "Status is required").not().isEmpty(),
+        check('course_status', "Status is required").not().isEmpty(),
         check('no_of_years', "No of Years is required").not().isEmpty(),
     ]
 ], async(req, res) => {
@@ -41,11 +41,11 @@ router.post('/add', [auth,
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { college_code, department_code, course_name, course_description, status, no_of_years } = req.body;
+    const { college_code, department_name, course_name, course_description, course_status, no_of_years } = req.body;
 
     try {
-        sqlInsertCourse = "INSERT INTO courses ( college_code, department_code, course_name, course_description, status, no_of_years) VALUES (?,?,?,?,?,?)";
-        db.query(sqlInsertCourse, [ college_code, department_code, course_name, course_description, status, no_of_years], (err,result) => {
+        sqlInsertCourse = "INSERT INTO courses ( college_code, department_name, course_name, course_description, course_status, no_of_years) VALUES (?,?,?,?,?,?)";
+        db.query(sqlInsertCourse, [ college_code, department_name, course_name, course_description, course_status, no_of_years], (err,result) => {
             if (err){
                 res.status(400).json({ errors: [{ msg: 'Oops, Something went wrong'}] });
             }else{

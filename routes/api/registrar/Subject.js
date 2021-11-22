@@ -34,8 +34,6 @@ router.post('/add',[auth,
         check('lab_units', "Lab units is required").not().isEmpty(),
         check('subject_type', "Subject type is required").not().isEmpty(),
         check('subject_category', "Subject category is required").not().isEmpty(),
-        check('lec_teaching_hours', "Lec Teaching hours is required").not().isEmpty(),
-        check('lab_teaching_hours', "Lab Teaching hours is required").not().isEmpty(),
         check('status', "Status is required").not().isEmpty(),
     ]
 ], async(req, res)=>{
@@ -43,7 +41,11 @@ router.post('/add',[auth,
     if (!errors.isEmpty()) {
         return res.status(400).json({errors: errors.array()});
     }
-    const { subject_code, subject_name, lec_units, lab_units, total_units, subject_type, subject_category,lec_teaching_hours,lab_teaching_hours,total_teaching_hours, status } = req.body;
+    const { subject_code, subject_name, lec_units, lab_units, subject_type, subject_category, status } = req.body;
+    let total_units = parseInt(lec_units) + parseInt(lab_units);
+    let lec_teaching_hours = parseInt(lec_units) * 1;
+    let lab_teaching_hours = parseInt(lab_units) * 3;
+    let total_teaching_hours = parseInt(lec_teaching_hours) + parseInt(lab_teaching_hours);
     try {
         sqlInsertSubject = "INSERT INTO subjects (subject_code, subject_name, lec_units, lab_units, total_units, subject_type, subject_category,lec_teaching_hours,lab_teaching_hours,total_teaching_hours,status) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
         db.query(sqlInsertSubject, [subject_code, subject_name, lec_units, lab_units, total_units, subject_type, subject_category, lec_teaching_hours,lab_teaching_hours,total_teaching_hours, status], (err, result) => {
